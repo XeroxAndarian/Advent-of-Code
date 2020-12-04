@@ -43,18 +43,22 @@ let rec zmnozek sez =
 
 let rec zdskvj vsota seznam = (* zdskvj = zmnozek dveh stevil, katerih vsota je *)
   match seznam with
-  | [] -> "Seznam ne vsebuje dveh stevil, katerih vsota je zahtevana vrednost"
+  | [] -> -1
   | x::rest -> 
     let nadomestek = vsota - int_of_string x in
-    if vsebuje rest nadomestek then string_of_int (zmnozek [nadomestek; int_of_string x]) else zdskvj vsota rest 
+    if vsebuje rest nadomestek then zmnozek  [nadomestek; int_of_string x] else zdskvj vsota rest 
 
-
-          
-  
+let rec v3sis vsota seznam  = (* vsota_treh_stevil_iz_seznama_je_enaka *)     
+  match seznam with 
+  | [] -> -1
+  | x::xs -> 
+    let nadomestek = vsota - int_of_string x in
+    if zdskvj nadomestek xs = -1 then v3sis vsota xs else int_of_string x * zdskvj nadomestek xs
+    
     
 
-let odgovor_1_1 = zdskvj 2020 list
-let odgovor_1_2 = "Še Ni rešeno"
+let odgovor_1_1 = string_of_int (zdskvj 2020 list)
+let odgovor_1_2 = string_of_int (v3sis 2020 list)
 
 
 
@@ -187,6 +191,14 @@ let odgovor_3_2_preskoci =  kolikokrat_se_pojavi_list (zadanem_drevo_preskoci se
 
 let odgovor_3_1 = string_of_int (kolikokrat_se_pojavi_list (zadanem_drevo seznam_dreves_po_vrsticah) true)
 let odgovor_3_2 = string_of_int (odgovor_3_2_1 * odgovor_3_2_5 * odgovor_3_2_7 * odgovor_3_2_preskoci *  (int_of_string odgovor_3_1))
+
+
+(*--------------------------------------------------- DAY 4 ------------------------------------------------------------*)
+
+
+
+
+
 
 
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
