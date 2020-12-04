@@ -223,17 +223,7 @@ let contains_substring str sub_str = (* https://stackoverflow.com/questions/8373
   hcl:#cfa07d eyr:2025 pid:166559648
   iyr:2011 ecl:brn hgt:59in "
 
-  type passport = {
-    byr: int; 
-    iyr: int; 
-    eyr: int; 
-    hcl: int;
-    hgt: int;
-    ecl: string;
-    pid: int;
-    cid: int
-    }
-
+  
   let spremeni_input4_v_seznam niz = Str.split (Str.regexp "\n\n") niz
 
   let preveri_validnost_passporta niz = (
