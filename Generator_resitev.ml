@@ -13,7 +13,13 @@ let str_to_list s =        (* source: https://stackoverflow.com/questions/986303
   let rec expl i l =
     if i < 0 then l else
     expl (i - 1) (s.[i] :: l) in
-  expl (String.length s - 1) [];;
+  expl (String.length s - 1) [];;close_in
+
+let rec everyEven a =   (* https://stackoverflow.com/questions/28360588/returning-every-other-element-of-a-list-in-ocaml *)
+  match a with
+  |[]-> []
+  |[_] -> []
+  |x::y::t -> y::everyEven t 
 
 
 
@@ -100,16 +106,87 @@ let koliko_gesel_je_primernih seznam = kolikokrat_se_pojavi_list (List.map ali_j
    
 let seznam_pass = List.map razvrstitev (List.map razbitje_po_presledkih (razbitje_po_odstavkih (preberi_datoteko datoteka_2_in)))  
 
-let odgovor_2_1 = string_of_int (koliko_gesel_je_primernih (seznam_pass))
 
 let pojavi_se_na_mestih pass = 
   match str_to_list pass.geslo with
   | [] -> false
   | _ -> (List.nth (str_to_list pass.geslo) (pass.pojavitev_min - 1) = pass.znak) <> (List.nth (str_to_list pass.geslo) (pass.pojavitev_max - 1) = pass.znak) 
-
-
-
+  
+  
+  
+let odgovor_2_1 = string_of_int (koliko_gesel_je_primernih (seznam_pass))
 let odgovor_2_2 = string_of_int (kolikokrat_se_pojavi_list (List.map pojavi_se_na_mestih seznam_pass) true )
+
+
+(*--------------------------------------------------- DAY 3 ------------------------------------------------------------*)
+let datoteka_3_in = "day_3.in"
+let datoteka_3_1_out = "day_3_1.out" 
+let datoteka_3_2_out = "day_3_2.out" 
+
+let test1 = ['.'; '.'; '.'; '#'; '#'; '.'; '.'; '#';'.'; '.']
+
+
+let seznam_dreves_po_vrsticah = razbitje_po_odstavkih (preberi_datoteko datoteka_3_in)
+
+let perioda = List.length (str_to_list (List.hd seznam_dreves_po_vrsticah))
+
+let je_drevo mesto seznam = (if mesto = 0 then (List.nth seznam ((List.length seznam) - 1) = "#".[0]) else (List.nth seznam (mesto - 1) = "#".[0]))
+
+let mesto_v_vrstici mesto = mesto mod perioda 
+
+let vrstica_v_mesto vrstica = 3 * (vrstica - 1) + 1 
+
+let buildList i n =   (* https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
+  let rec aux acc i =
+    if i <= n then
+      aux (i::acc) (i+1)
+    else (List.rev acc)
+  in
+  aux [] i
+
+
+let zadanem_drevo seznam_dreves = 
+  List.map2 
+  je_drevo
+  (List.map mesto_v_vrstici (List.map  vrstica_v_mesto(buildList 1 (List.length seznam_dreves))))
+  (List.map str_to_list seznam_dreves)
+  
+ 
+let vrstica_v_mesto_1 vrstica =  (vrstica - 1) + 1
+let vrstica_v_mesto_5 vrstica =  5 * (vrstica - 1) + 1
+let vrstica_v_mesto_7 vrstica =  7 * (vrstica - 1) + 1
+
+let zadanem_drevo_1  seznam_dreves = 
+  List.map2 
+  je_drevo
+  (List.map mesto_v_vrstici (List.map  vrstica_v_mesto_1 (buildList 1 (List.length seznam_dreves))))
+  (List.map str_to_list seznam_dreves)
+
+  let zadanem_drevo_5  seznam_dreves = 
+  List.map2 
+  je_drevo
+  (List.map mesto_v_vrstici (List.map  vrstica_v_mesto_5 (buildList 1 (List.length seznam_dreves))))
+  (List.map str_to_list seznam_dreves)
+
+  let zadanem_drevo_7  seznam_dreves = 
+  List.map2 
+  je_drevo
+  (List.map mesto_v_vrstici (List.map  vrstica_v_mesto_7 (buildList 1 (List.length seznam_dreves))))
+  (List.map str_to_list seznam_dreves)
+
+  let zadanem_drevo_preskoci  seznam_dreves = 
+  (List.map2 
+  je_drevo
+  (List.map mesto_v_vrstici (List.map  vrstica_v_mesto_1 (buildList 1 ((List.length seznam_dreves)/2 + 1) )))
+  (everyEven ([['a']] @ (List.map str_to_list seznam_dreves))))
+
+let odgovor_3_2_1 =  kolikokrat_se_pojavi_list (zadanem_drevo_1 seznam_dreves_po_vrsticah) true
+let odgovor_3_2_5 =  kolikokrat_se_pojavi_list (zadanem_drevo_5 seznam_dreves_po_vrsticah) true
+let odgovor_3_2_7 =  kolikokrat_se_pojavi_list (zadanem_drevo_7 seznam_dreves_po_vrsticah) true
+let odgovor_3_2_preskoci =  kolikokrat_se_pojavi_list (zadanem_drevo_preskoci seznam_dreves_po_vrsticah) true
+
+let odgovor_3_1 = string_of_int (kolikokrat_se_pojavi_list (zadanem_drevo seznam_dreves_po_vrsticah) true)
+let odgovor_3_2 = string_of_int (odgovor_3_2_1 * odgovor_3_2_5 * odgovor_3_2_7 * odgovor_3_2_preskoci *  (int_of_string odgovor_3_1))
 
 
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
@@ -119,3 +196,5 @@ let _ =
     izpisi_datoteko datoteka_1_2_out odgovor_1_2;
     izpisi_datoteko datoteka_2_1_out odgovor_2_1;
     izpisi_datoteko datoteka_2_2_out odgovor_2_2;
+    izpisi_datoteko datoteka_3_1_out odgovor_3_1;
+    izpisi_datoteko datoteka_3_2_out odgovor_3_2;
