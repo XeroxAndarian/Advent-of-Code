@@ -1,43 +1,69 @@
-#load "str.cma";;
+(*--------------------------------------------------- Gadgets ------------------------------------------------------------*)
+  #load "str.cma";;
 
-let preberi_datoteko ime_datoteke =
-  let chan = open_in ime_datoteke in
-  let vsebina = really_input_string chan (in_channel_length chan) in
-  close_in chan;
-  vsebina
+  let preberi_datoteko ime_datoteke =
+    let chan = open_in ime_datoteke in
+    let vsebina = really_input_string chan (in_channel_length chan) in
+    close_in chan;
+    vsebina
 
-let  izpisi_datoteko ime_datoteke vsebina =
-        let chan = open_out ime_datoteke in
-        output_string chan vsebina;
-        close_out chan
+  let  izpisi_datoteko ime_datoteke vsebina =
+          let chan = open_out ime_datoteke in
+          output_string chan vsebina;
+          close_out chan
 
-let str_to_list s =        (* source: https://stackoverflow.com/questions/9863036/ocaml-function-parameter-pattern-matching-for-strings  *)
-  let rec expl i l =
-    if i < 0 then l else
-    expl (i - 1) (s.[i] :: l) in
-  expl (String.length s - 1) [];;close_in
+  let str_to_list s =        (* source: https://stackoverflow.com/questions/9863036/ocaml-function-parameter-pattern-matching-for-strings  *)
+    let rec expl i l =
+      if i < 0 then l else
+      expl (i - 1) (s.[i] :: l) in
+    expl (String.length s - 1) [];;close_in
 
-let rec everyEven a =   (* https://stackoverflow.com/questions/28360588/returning-every-other-element-of-a-list-in-ocaml *)
-  match a with
-  |[]-> []
-  |[_] -> []
-  |x::y::t -> y::everyEven t 
+  let rec everyEven a =   (* source: https://stackoverflow.com/questions/28360588/returning-every-other-element-of-a-list-in-ocaml *)
+    match a with
+    |[]-> []
+    |[_] -> []
+    |x::y::t -> y::everyEven t 
 
-let razbitje str znak = String.split_on_char znak str 
+  let razbitje str znak = String.split_on_char znak str 
 
-let kolikokrat_se_pojavi str ch = 
-  match str_to_list str with
-  | [] -> 0
-  | x::xs -> List.length (List.find_all (fun y -> y = ch) (str_to_list str))
+  let kolikokrat_se_pojavi str ch = 
+    match str_to_list str with
+    | [] -> 0
+    | x::xs -> List.length (List.find_all (fun y -> y = ch) (str_to_list str))
 
-let contains_substring str sub_str = (* https://stackoverflow.com/questions/8373460/substring-check-in-ocaml *)
-  let re = Str.regexp_string sub_str
-  in
-      try ignore (Str.search_forward re str 0); true
-      with Not_found -> false
+  let contains_substring str sub_str = (* source: https://stackoverflow.com/questions/8373460/substring-check-in-ocaml *)
+    let re = Str.regexp_string sub_str
+    in
+        try ignore (Str.search_forward re str 0); true
+        with Not_found -> false
+
+  let rec maximum list =  (* source of inspiration : https://www.allegro.cc/forums/thread/598795 *)
+    match list with
+    | [] -> 0
+    | x :: [] -> x
+    | x :: xs -> 
+          let v = maximum xs in
+          if x > v then x else v
+
+  let rec minimum list =  (* source : https://www.allegro.cc/forums/thread/598795 *)
+    match list with
+    | [] -> 0
+    | x :: [] -> x
+    | x :: xs -> 
+          let v = minimum xs in
+          if x < v then x else v
   
+  let vsebuje sez n = List.mem (string_of_int n) sez
+  let vsebuje_2 sez n = List.mem n sez
 
-
+  let buildList i n =   (* source: https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
+    let rec aux acc i =
+      if i <= n then
+        aux (i::acc) (i+1)
+      else (List.rev acc)
+    in
+    aux [] i
+    
 (*--------------------------------------------------- DAY 1 ------------------------------------------------------------*)
 
   let datoteka_1_in = "day_1.in"
@@ -48,7 +74,7 @@ let contains_substring str sub_str = (* https://stackoverflow.com/questions/8373
 
   let list = String.split_on_char '\n' (preberi_datoteko datoteka_1_in)
 
-  let vsebuje sez a = List.mem (string_of_int a) sez
+  
 
   let rec zmnozek sez = 
     match sez with
@@ -150,15 +176,6 @@ let contains_substring str sub_str = (* https://stackoverflow.com/questions/8373
 
   let vrstica_v_mesto vrstica = 3 * (vrstica - 1) + 1 
 
-  let buildList i n =   (* https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
-    let rec aux acc i =
-      if i <= n then
-        aux (i::acc) (i+1)
-      else (List.rev acc)
-    in
-    aux [] i
-
-
   let zadanem_drevo seznam_dreves = 
     List.map2 
     je_drevo
@@ -256,15 +273,75 @@ let contains_substring str sub_str = (* https://stackoverflow.com/questions/8373
   let validnost_skupek_passportov_natancno seznam = List.map preveri_validnost_passporta_natancno seznam
 
   let odgovor_4_2 = string_of_int (kolikokrat_se_pojavi_list (validnost_skupek_passportov_natancno (spremeni_input4_v_seznam (preberi_datoteko datoteka_4_in))) true)
+
+
+(*--------------------------------------------------- DAY 5 ------------------------------------------------------------*)
+  let datoteka_5_in = "day_5.in"
+  let datoteka_5_1_out = "day_5_1.out" 
+  let datoteka_5_2_out = "day_5_2.out" 
+
+  let spremeni_input5_v_seznam niz = Str.split (Str.regexp "\n") niz
+
+  let spremeni_input5_v_seznam_seznamov  seznam = List.map str_to_list seznam
+
+  let input5 = spremeni_input5_v_seznam_seznamov ( spremeni_input5_v_seznam ( preberi_datoteko datoteka_5_in ) )
+
+  let test_ticket = str_to_list "FBFBBFFRLR" 
+
+  let find_middle n1 n2 = (n1 + n2)/2
+
+
+  let rec vrstica seznam min max = 
+    match seznam with
+    | [] -> -1
+    | ['B'; a; b; c] -> max - 1
+    | ['F'; a; b; c] -> min
+    | 'F'::xs -> vrstica xs min (find_middle min max)
+    | 'B'::xs -> vrstica xs (find_middle min max) max
+    | _ -> -1 
+
+  let rec sedez seznam min max = 
+    match seznam with
+    | ['R'] -> max - 1
+    | ['L'] -> min
+    | 'R'::xs -> sedez xs (find_middle min max) max
+    | 'L'::xs -> sedez xs min (find_middle min max)
+    | x::xs -> sedez xs min max
+    | _ -> -1
+
+  let ticket_ID seznam = (vrstica seznam 0 127 + 1) * 8 + (sedez seznam 0 7 + 1) (* Sedezi in vrstice se zacnejo stevilciti z 0*) 
+  let ticket_ID_2 seznam = (vrstica seznam 0 128 ) * 8 + (sedez seznam 0 8 )  (* Sedezi in vrstice se zacnejo stevilciti z 1*)
+
+  let odgovor_5_1 = maximum (List.map ticket_ID input5)
+  let odgovor_5_1_str = string_of_int odgovor_5_1
   
+  let ticket_ID_to_seat id = id mod 8
+  let ticket_ID_to_row id = Float.to_int (Float.floor (Float.of_int ( id / 8)))
+  
+  let odstevanje el1 el2 = el1 - el2
+
+  let sedezi1 = buildList (minimum (List.map ticket_ID input5)) (maximum (List.map ticket_ID input5)) 
+  let sedezi2 = (List.sort compare (List.map ticket_ID input5)) 
+
+  let rec pregled_vozovnic seznam1 seznam2 =
+    match seznam1 with
+    | [] -> 0
+    | x::xs -> if (vsebuje_2 seznam2 x)  then pregled_vozovnic xs seznam2 else (if (x mod 8 = 0) then pregled_vozovnic xs seznam2 else x)
+
+  let odgovor_5_2 = pregled_vozovnic sedezi1 sedezi2
+  let odgovor_5_2_str = string_of_int odgovor_5_2
+
+    
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
-let _ = 
-    izpisi_datoteko datoteka_1_1_out odgovor_1_1;
-    izpisi_datoteko datoteka_1_2_out odgovor_1_2;
-    izpisi_datoteko datoteka_2_1_out odgovor_2_1;
-    izpisi_datoteko datoteka_2_2_out odgovor_2_2;
-    izpisi_datoteko datoteka_3_1_out odgovor_3_1;
-    izpisi_datoteko datoteka_3_2_out odgovor_3_2;
-    izpisi_datoteko datoteka_4_1_out odgovor_4_1;
-    izpisi_datoteko datoteka_4_2_out odgovor_4_2;
+  let _ = 
+      izpisi_datoteko datoteka_1_1_out odgovor_1_1;
+      izpisi_datoteko datoteka_1_2_out odgovor_1_2;
+      izpisi_datoteko datoteka_2_1_out odgovor_2_1;
+      izpisi_datoteko datoteka_2_2_out odgovor_2_2;
+      izpisi_datoteko datoteka_3_1_out odgovor_3_1;
+      izpisi_datoteko datoteka_3_2_out odgovor_3_2;
+      izpisi_datoteko datoteka_4_1_out odgovor_4_1;
+      izpisi_datoteko datoteka_4_2_out odgovor_4_2;
+      izpisi_datoteko datoteka_5_1_out odgovor_5_1_str;
+      izpisi_datoteko datoteka_5_2_out odgovor_5_2_str;
