@@ -1,5 +1,6 @@
 (*--------------------------------------------------- Gadgets ------------------------------------------------------------*)
   #load "str.cma";;
+  
 
   let preberi_datoteko ime_datoteke =
     let chan = open_in ime_datoteke in
@@ -53,8 +54,8 @@
           let v = minimum xs in
           if x < v then x else v
   
-  let vsebuje sez n = List.mem (string_of_int n) sez
-  let vsebuje_2 sez n = List.mem n sez
+  let vsebuje sez n = List.mem (string_of_int n) sez 
+  let vsebuje_2 sez n = List.mem n sez (* n in str form*)
 
   let buildList i n =   (* source: https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
     let rec aux acc i =
@@ -63,7 +64,22 @@
       else (List.rev acc)
     in
     aux [] i
-    
+
+  let rec makeList i = (if i = 0 then [] else [0] @ makeList (i-1)) (* source: https://stackoverflow.com/questions/36568189/ocaml-how-to-create-a-list-of-n-1s-in/36568502*)
+  let rec replaceelem ls x elem =  (* source: https://stackoverflow.com/questions/37091784/ocaml-function-replace-a-element-in-a-list *)
+    match ls with
+    | [] -> ls
+    | h::t -> if (x=0) then
+                elem::(replaceelem t (x-1) elem)
+              else
+                h::(replaceelem t (x-1) elem) 
+
+
+  let list_diff l1 l2 = List.filter (fun x -> not (List.mem x l2)) l1 (* source: https://stackoverflow.com/questions/22132458/library-function-to-find-difference-between-two-lists-ocaml *)
+  let list_equal l1 l2 = List.filter (fun x -> (List.mem x l2)) l1
+
+
+
 (*--------------------------------------------------- DAY 1 ------------------------------------------------------------*)
 
   let datoteka_1_in = "day_1.in"
@@ -331,7 +347,40 @@
   let odgovor_5_2 = pregled_vozovnic sedezi1 sedezi2
   let odgovor_5_2_str = string_of_int odgovor_5_2
 
-    
+(*--------------------------------------------------- DAY 6 ------------------------------------------------------------*)
+  let datoteka_6_in = "day_6.in"
+  let datoteka_6_1_out = "day_6_1.out" 
+  let datoteka_6_2_out = "day_6_2.out" 
+
+  let sez_skup_in_odg = List.map razbitje_po_odstavkih (spremeni_input4_v_seznam (preberi_datoteko datoteka_6_in)) 
+
+  let rec preverjalnik_anyone seznam =
+    match seznam with
+    | [] -> []
+    | x::xs -> (str_to_list  x) @ list_diff (preverjalnik_anyone xs) (str_to_list  x)
+
+  let count_elements seznam = List.length seznam
+
+  let test_6 = List.map preverjalnik_anyone sez_skup_in_odg
+
+  let test62 = List.map count_elements test_6 
+
+  let rec vsota_seznama sez =
+    match sez with
+    | [] -> 0
+    | x::xs -> x + vsota_seznama xs
+
+  let odgovor_6_1 = vsota_seznama test62
+  let odgovor_6_1_str = string_of_int odgovor_6_1
+
+  let rec preverjalnik_everyone seznam =
+    match seznam with
+    | [] -> ['a'; 'b'; 'c'; 'd'; 'e'; 'f'; 'g'; 'h'; 'i'; 'j'; 'k'; 'l'; 'm'; 'n'; 'o'; 'p'; 'q'; 'r'; 's'; 't'; 'u'; 'v'; 'x'; 'y'; 'w'; 'z'] 
+    | x::xs -> list_equal (str_to_list x) (preverjalnik_everyone xs)
+
+  let odgovor_6_2 = vsota_seznama (List.map count_elements (List.map preverjalnik_everyone sez_skup_in_odg))
+  let odgovor_6_2_str = string_of_int odgovor_6_2
+
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
   let _ = 
@@ -345,3 +394,5 @@
       izpisi_datoteko datoteka_4_2_out odgovor_4_2;
       izpisi_datoteko datoteka_5_1_out odgovor_5_1_str;
       izpisi_datoteko datoteka_5_2_out odgovor_5_2_str;
+      izpisi_datoteko datoteka_6_1_out odgovor_6_1_str;
+      izpisi_datoteko datoteka_6_2_out odgovor_6_2_str;
