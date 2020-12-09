@@ -77,8 +77,14 @@
 
   let list_diff l1 l2 = List.filter (fun x -> not (List.mem x l2)) l1 (* source: https://stackoverflow.com/questions/22132458/library-function-to-find-difference-between-two-lists-ocaml *)
   let list_equal l1 l2 = List.filter (fun x -> (List.mem x l2)) l1
+  let list_equal_2 l1 l2 = 
+    if l1 = [] 
+      then l2
+      else if l2 = []
+        then l1
+        else List.filter (fun x -> (List.mem x l2)) l1
 
-
+  let replace l pos a  = List.mapi (fun i x -> if i = pos then a else x) l (* source: https://stackoverflow.com/questions/37091784/ocaml-function-replace-a-element-in-a-list *)
 
 (*--------------------------------------------------- DAY 1 ------------------------------------------------------------*)
 
@@ -381,6 +387,113 @@
   let odgovor_6_2 = vsota_seznama (List.map count_elements (List.map preverjalnik_everyone sez_skup_in_odg))
   let odgovor_6_2_str = string_of_int odgovor_6_2
 
+
+(*--------------------------------------------------- DAY 7 (Unsolved)--------------------------------------------------*)
+  let datoteka_7_in = "day_7.in"
+  let datoteka_7_1_out = "day_7_1.out" 
+  let datoteka_7_2_out = "day_7_2.out"
+
+  let seznam_vseh_torb = razbitje_po_odstavkih(preberi_datoteko datoteka_7_in)
+  let svt_contains  = List.map (Str.split (Str.regexp " contain")) seznam_vseh_torb
+  
+  let mother_bag torba_x seznam =  if contains_substring (List.nth seznam 1) torba_x then List.hd seznam else "0" 
+
+  let g = Str.split (Str.regexp " contain") "clear crimson bags contain 2 dim blue bags, 4 bright indigo bags" (* ["clear crimson bags" ; "2 dim blue bags, 4 bright indigo bags"]*)
+  let h = Str.split (Str.regexp " contain") "dotted lavender bags contain 5 shiny olive bags, 3 plaid blue bags, 1 shiny gold bag."
+
+  let rec pajvkdt seznam torba = (* Preveri Ali Je V Kaksni Drugi Torbi -> vrne seznam torb v katerih lahko nosimo torbo*)
+    match seznam with
+    | [] -> []
+    | x::xs -> if mother_bag torba x = "0" 
+                  then pajvkdt xs torba 
+                  else [mother_bag torba x ] @ pajvkdt xs torba  
+  
+  let rec naredi_seznam_vseh_torb seznam =
+    match seznam with
+    | [] -> []
+    | x::xs -> [List.hd x] @ naredi_seznam_vseh_torb xs
+  
+  let svt = naredi_seznam_vseh_torb svt_contains
+
+
+
+  let rec presek_listov seznam = 
+    match seznam with
+    | [] -> []
+    | x::xs -> list_equal_2 x (presek_listov xs) 
+  
+  let presek_listov_test = presek_listov [[1;2];[2;3];[2;4]] 
+
+  let rec unija_listov seznam = 
+    match seznam with
+    | [] -> []
+    | x::xs -> x @ (list_diff (unija_listov xs) x )
+
+    let unija_listov_test = unija_listov [[1;2];[2;3];[2;4]; [1;5]; [2;3]] 
+
+  let shiny_gold_se_pojavi_v = unija_listov (List.map (pajvkdt svt_contains) (pajvkdt svt_contains "shiny gold"))
+  let shiny_2 = unija_listov (List.map (pajvkdt svt_contains) shiny_gold_se_pojavi_v)
+  let shiny_3 = unija_listov (List.map (pajvkdt svt_contains) shiny_2)
+  let shiny_4 = unija_listov (List.map (pajvkdt svt_contains) shiny_3)
+  let shiny_5 = unija_listov (List.map (pajvkdt svt_contains) shiny_4)
+  let shiny_6 = unija_listov (List.map (pajvkdt svt_contains) shiny_5)
+  let shiny_7 = unija_listov (List.map (pajvkdt svt_contains) shiny_6)
+
+  let lvmtzs = shiny_gold_se_pojavi_v @ shiny_2 @ shiny_3 @ shiny_4 @ shiny_5 @ shiny_6 @ shiny_7
+
+  let odgovor_7_1 = List.length shiny_gold_se_pojavi_v * List.length shiny_2 * List.length shiny_3 * List.length shiny_4 * List.length shiny_5 * List.length shiny_6 
+
+  (*----------------------------------------------------------------------------------------------------------------------- *)
+
+
+(*--------------------------------------------------- DAY 8 ------------------------------------------------------------*)
+  let datoteka_8_in = "day_8.in"
+  let datoteka_8_1_out = "day_8_1.out" 
+  let datoteka_8_2_out = "day_8_2.out" 
+
+  let sez_8 = razbitje_po_odstavkih (preberi_datoteko datoteka_8_in)
+  let sez8  = List.map razbitje_po_presledkih sez_8 
+  
+  let rec racunaj_acc seznam = 
+    let acc = 0 in
+    match seznam with
+    | [] ->  acc + 0 
+    | x::xs -> acc + (x + racunaj_acc xs)
+
+  let p = [] 
+
+  let dogajanje [accumulator; mesto] seznam  =
+    let acc = accumulator in
+    match seznam with
+    | [] -> [acc; mesto]
+    | x::xs -> if List.hd (List.nth seznam mesto) = "acc" 
+            then [(acc + (int_of_string (List.nth (List.nth seznam mesto) 1))) ; (mesto + 1)] 
+            else  if List.hd (List.nth seznam mesto) = "jmp" 
+              then [acc ; (mesto + int_of_string (List.nth (List.nth seznam mesto) 1))]
+              else [acc ; mesto + 1] 
+
+  let dodaj_mesto [accumulator; mesto] seznam_mest = seznam_mest @ [mesto]
+
+
+  let rec n8 [accumulator; mesto] seznam seznam_mest = 
+    if vsebuje_2 seznam_mest mesto 
+      then accumulator
+    else n8 (dogajanje [accumulator; mesto] seznam) seznam (dodaj_mesto [accumulator; mesto] seznam_mest) 
+    
+  let odgovor_8_1 = n8 [0; 0] sez8 p
+  let odgovor_8_1_str = string_of_int odgovor_8_1
+  
+  let rec najdi_napako [accumulator; mesto] seznam seznam_mest = 
+    if vsebuje_2 seznam_mest mesto 
+      then List.nth seznam_mest (List.length (seznam_mest) - 1)
+    else najdi_napako (dogajanje [accumulator; mesto] seznam) seznam (dodaj_mesto [accumulator; mesto] seznam_mest)
+
+  let t8 = najdi_napako [0; 0] sez8 p
+  let zamenjaj_232 = replace sez8 233 ["nop"; "+1"]
+  let t8_1 = najdi_napako [0; 0] zamenjaj_232 p
+
+
+  let odgovor_8_2 = n8 [0; 0] zamenjaj_232 p
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
   let _ = 
@@ -396,3 +509,4 @@
       izpisi_datoteko datoteka_5_2_out odgovor_5_2_str;
       izpisi_datoteko datoteka_6_1_out odgovor_6_1_str;
       izpisi_datoteko datoteka_6_2_out odgovor_6_2_str;
+      izpisi_datoteko datoteka_8_1_out odgovor_8_1_str;
