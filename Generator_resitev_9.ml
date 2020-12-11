@@ -55,7 +55,7 @@
           if x < v then x else v
   
   let vsebuje sez n = List.mem (string_of_int n) sez 
-  let vsebuje_2 sez n = List.mem n sez (* n in str form*)
+  let vsebuje_2 sez n = List.mem n sez 
 
   let buildList i n =   (* source: https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
     let rec aux acc i =
@@ -90,6 +90,7 @@
     match lst with
     | [] -> -1 
     | h :: t -> if x = h then 0 else 1 + find x t
+
 
 (*--------------------------------------------------- DAY 9 ------------------------------------------------------------*)
   let datoteka_9_in = "day_9.in"
@@ -172,9 +173,42 @@
   let odgovor_9_1 = array_sez.(index)
   let odgovor_9_1_str = string_of_int odgovor_9_1
 (*--------------------------------------------------- DAY 10 ------------------------------------------------------------*)
+  let datoteka_10_in = "day_10.in"
+  let datoteka_10_1_out = "day_10_1.out" 
+  let datoteka_10_2_out = "day_10_2.out" 
+
+  let s10 = List.sort compare (List.map int_of_string (razbitje (preberi_datoteko datoteka_10_in) '\n'))
+
+  let jolt_jump_1  seznam  st = vsebuje_2 seznam (st + 1)
+  let jolt_jump_2  seznam  st = vsebuje_2 seznam (st + 2)
+  let jolt_jump_3  seznam  st = vsebuje_2 seznam (st + 3)
+  
+  let rec sestej_seznama_po_kompponentah sez1 sez2 = 
+    match sez1, sez2 with
+    | [], [] -> []
+    | x::xs, y::ys -> [x + y] @ sestej_seznama_po_kompponentah xs ys
+    | [], y::ys -> y::ys
+    | x::xs, [] -> x::xs  
+
+  let rec preveri_jolt_jump seznam trenutni_count = 
+    match  seznam with 
+    | [] -> trenutni_count
+    | x::xs  -> if (jolt_jump_1 xs x) 
+                  then preveri_jolt_jump xs (sestej_seznama_po_kompponentah trenutni_count [1; 0])
+                  else preveri_jolt_jump xs (sestej_seznama_po_kompponentah trenutni_count [0; 1])   
+  let test1 = List.sort compare [28; 33; 18; 42; 31; 14; 46; 20; 48; 47; 24; 23; 49; 45; 19; 38; 39; 11; 1; 32; 25; 35; 8; 17; 7; 9; 4; 2; 34; 10; 3]
+  let rec zmnozi_elemente_seznama seznam = 
+    match seznam with
+    | [] -> 1
+    | x::xs -> x * zmnozi_elemente_seznama xs
+  
+  let odgovor_10_1 = zmnozi_elemente_seznama (preveri_jolt_jump s10 [1;0])
+  let odgovor_10_1_str = string_of_int odgovor_10_1
+
+
 
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
   let _ = 
-      izpisi_datoteko datoteka_9_1_out odgovor_9_1_str
-      
+      izpisi_datoteko datoteka_9_1_out odgovor_9_1_str;
+      izpisi_datoteko datoteka_10_1_out odgovor_10_1_str
