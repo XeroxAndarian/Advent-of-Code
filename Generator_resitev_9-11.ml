@@ -32,6 +32,11 @@
     | [] -> 0
     | x::xs -> List.length (List.find_all (fun y -> y = ch) (str_to_list str))
 
+    let kolikokrat_se_pojavi_sez sez ch = 
+      match sez with
+      | [] -> 0
+      | x::xs -> List.length (List.find_all (fun y -> y = ch) sez)
+
   let contains_substring str sub_str = (* source: https://stackoverflow.com/questions/8373460/substring-check-in-ocaml *)
     let re = Str.regexp_string sub_str
     in
@@ -56,6 +61,7 @@
   
   let vsebuje sez n = List.mem (string_of_int n) sez 
   let vsebuje_2 sez n = List.mem n sez 
+  let vsebuje_a array n = Array.mem n array 
 
   let buildList i n =   (* source: https://stackoverflow.com/questions/5653739/building-a-list-of-ints-in-ocaml *)
     let rec aux acc i =
@@ -91,6 +97,13 @@
     | [] -> -1 
     | h :: t -> if x = h then 0 else 1 + find x t
 
+  let reverse_a array = let len=Array.length array in (* source: https://stackoverflow.com/questions/50256693/how-to-reverse-array-in-ocaml *)
+    for i=0 to (len/2) do 
+        let temp = array.(i) in
+        array.(i) <- array.(len-i-1);
+        array.(len-i-1) <- temp         
+    done;
+    array
 
 (*--------------------------------------------------- DAY 9 ------------------------------------------------------------*)
   let datoteka_9_in = "day_9.in"
@@ -205,10 +218,129 @@
   let odgovor_10_1 = zmnozi_elemente_seznama (preveri_jolt_jump s10 [1;0])
   let odgovor_10_1_str = string_of_int odgovor_10_1
 
+(*--------------------------------------------------- DAY 11 ------------------------------------------------------------*)
+  let datoteka_11_in = "day_11.in"
+  let datoteka_11_1_out = "day_11_1.out" 
+  let datoteka_11_2_out = "day_11_2.out"
 
+  let matr11 = razbitje (preberi_datoteko datoteka_11_in) '\n'
+  let m11 = Array.of_list (List.map Array.of_list (List.map str_to_list matr11))
+  
+  let pozicija x y = (m11.(y)).(x) 
+  let max_x = Array.length (m11.(0)) - 1
+  let max_y = Array.length m11 - 1
+  (* 
+  (0,0) (1,0) (2,0) (3,0) (4,0) ...  (max_x, 0)
+  (0,1) (1,1)                           .
+  (0,2)       (2,2)                     .
+  (0,3)             (3,3)               .
+  (0,4)                   (4,4) 
+  .
+  .
+  .                                  
+  (0, max_y)  ....                    (max_x, max_y)
+
+  *)
+
+  let prazen x y = (pozicija x y = 'L' || pozicija x y = '.')
+  let zaseden x y = (pozicija x y = '#')
+
+  
+  let sz x y = prazen (x-1) (y -1)
+  let s x y = prazen (x) (y-1)
+  let sv x y = prazen (x+1) (y-1)
+  let z x y = prazen (x-1) (y)
+  let v x y = prazen (x+1) (y)
+  let jz x y = prazen (x-1) (y+1)
+  let j x y = prazen (x) (y+1)
+  let jv x y = prazen (x+1) (y+1)
+
+
+  let surr x y = 
+    if (x=0 && y=0) 
+      then [v x y ; j x y ; jv x y]
+      else if (y=max_y && x= max_x)
+          then [sz x y; s x y; z x y]
+          else if (x=max_x && y=0)
+            then [z x y; jz x y ; j x y] 
+            else if (x=0 && y=max_y)
+              then [sz x y; s x y; sv x y]
+              else if (x = 0)
+                then [s x y; sv x y ; v x y ;  j x y ; jv x y]
+                else if x=max_x
+                  then  [sz x y; s x y; z x y;jz x y ; j x y]
+                  else if y=0
+                    then [z x y; v x y ; jz x y ; j x y ; jv x y]
+                    else if y=max_y
+                      then  [sz x y; s x y; sv x y ; z x y; v x y]
+                      else [sz x y; s x y; sv x y ; z x y; v x y ; jz x y ; j x y ; jv x y]
+ 
+
+  let okoli_prosti x y =
+    (kolikokrat_se_pojavi_sez (surr x y) true )
+
+  let postane_prazen x y = 
+                        if m11.(x).(y) = '.'
+                          then m11.(x).(y) <- '.'
+                          else 
+                            if okoli_prosti x y < 4
+                              then m11.(x).(y) <- 'L'
+                              else m11.(x).(y) <- '#' 
+
+  let se_zasede x y = if m11.(x).(y) = '.'
+                        then m11.(x).(y) <- '.'
+                        else 
+                          if okoli_prosti x y != 0  
+                            then m11.(x).(y) <- '#'
+                            else m11.(x).(y) <- 'L' 
+  
+  let runda x y = if prazen x y 
+                    then se_zasede x y
+                    else postane_prazen x y 
+  
+  let list_x = buildList 0 max_x 
+  let list_y = buildList 0 max_y
+                  
+ 
+
+(*--------------------------------------------------- DAY 15 ------------------------------------------------------------*)
+let datoteka_15_in = "day_15.in"
+let datoteka_15_1_out = "day_15_1.out" 
+let datoteka_15_2_out = "day_15_2.out"
+
+let a15 =Array.of_list (List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ','))
+let s15 =List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ',')
+
+let preveri_mesto array n = "neki"
+
+let rec find_in_array a x n = (* vrne index pozicije prvega elementa *)
+  if a.(n) = x 
+    then n
+    else find_in_array a x (n-1)
+  
+
+let rec next array = 
+  let last = (Array.length array - 1) in
+  let zadnji = array.(last) in
+  let anti_rep = Array.sub array 0 last in
+  if last = 2021 then array
+    else
+      if vsebuje_a  (anti_rep) zadnji
+        then next (Array.append array [|last  - (find_in_array anti_rep zadnji (last - 1))|])
+        else next  (Array.append array [|0|])
+
+let t15 = [|0; 3; 6|]
+let tt15 = [|1;2;3;4;5;3;2;3;4;5|]
+
+let no_2020 array = (next array).(2019)
+let no_30000000 array = (next array).(30000000 - 1)
+
+let odgovor_15_1 = string_of_int (no_2020 a15)
 
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
   let _ = 
       izpisi_datoteko datoteka_9_1_out odgovor_9_1_str;
-      izpisi_datoteko datoteka_10_1_out odgovor_10_1_str
+      izpisi_datoteko datoteka_10_1_out odgovor_10_1_str;
+      izpisi_datoteko datoteka_15_1_out odgovor_15_1;
+      
