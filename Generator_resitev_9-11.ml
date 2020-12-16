@@ -26,6 +26,7 @@
     |x::y::t -> y::everyEven t 
 
   let razbitje str znak = String.split_on_char znak str 
+  let razbitje_po_presledku str = String.split_on_char ' ' str 
 
   let kolikokrat_se_pojavi str ch = 
     match str_to_list str with
@@ -105,6 +106,8 @@
     done;
     array
 
+  let rec drop n h =
+      if n == 0 then h else (drop (n-1) (match h with a::b -> b))
 (*--------------------------------------------------- DAY 9 ------------------------------------------------------------*)
   let datoteka_9_in = "day_9.in"
   let datoteka_9_1_out = "day_9_1.out" 
@@ -304,43 +307,118 @@
  
 
 (*--------------------------------------------------- DAY 15 ------------------------------------------------------------*)
-let datoteka_15_in = "day_15.in"
-let datoteka_15_1_out = "day_15_1.out" 
-let datoteka_15_2_out = "day_15_2.out"
+  let datoteka_15_in = "day_15.in"
+  let datoteka_15_1_out = "day_15_1.out" 
+  let datoteka_15_2_out = "day_15_2.out"
 
-let a15 =Array.of_list (List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ','))
-let s15 =List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ',')
+  let a15 =Array.of_list (List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ','))
+  let s15 =List.map int_of_string (razbitje (preberi_datoteko datoteka_15_in) ',')
 
-let preveri_mesto array n = "neki"
+  let preveri_mesto array n = "neki"
 
-let rec find_in_array a x n = (* vrne index pozicije prvega elementa *)
-  if a.(n) = x 
-    then n
-    else find_in_array a x (n-1)
+  let rec find_in_array a x n = (* vrne index pozicije prvega elementa *)
+    if a.(n) = x 
+      then n
+      else find_in_array a x (n-1)
+    
+
+  let rec next array = 
+    let last = (Array.length array - 1) in
+    let zadnji = array.(last) in
+    let anti_rep = Array.sub array 0 last in
+    if last = 2021 then array
+      else
+        if vsebuje_a  (anti_rep) zadnji
+          then next (Array.append array [|last  - (find_in_array anti_rep zadnji (last - 1))|])
+          else next  (Array.append array [|0|])
+
+  let t15 = [|0; 3; 6|]
+  let tt15 = [|1;2;3;4;5;3;2;3;4;5|]
+
+  let no_2020 array = (next array).(2019)
+  let no_30000000 array = (next array).(30000000 - 1)
+
+  let odgovor_15_1 = string_of_int (no_2020 a15)
+
+
+(*--------------------------------------------------- DAY 16 ------------------------------------------------------------*)
+  let datoteka_16_in = "day_16.in"
+  let datoteka_16_1_out = "day_16_1.out" 
+  let datoteka_16_2_out = "day_16_2.out"
+
+  let raw_s16 = razbitje (preberi_datoteko datoteka_16_in) '\n'
+  let r_s16 = List.map razbitje_po_presledku raw_s16
+  let as16 = Array.of_list (List.map  (String.split_on_char ',') (drop 25 raw_s16))
+
+  let ad16 = Array.map (List.map int_of_string) as16 
+  let a16 = Array.map (Array.of_list) ad16
+
+  let dl n = if ((n >= 33 && n <= 430) || (n >= 456 && n <= 967)) then 0 else n 
+  let ds n = if ((n >= 42 && n <= 864) || (n >= 875 && n <= 957)) then 0 else n 
+  let dp n = if ((n >= 42 && n <= 805) || (n >= 821 && n <= 968)) then 0 else n 
+  let dt n = if ((n >= 34 && n <= 74) || (n >= 93 && n <= 967)) then 0 else n 
+  let dd n = if ((n >= 40 && n <= 399) || (n >= 417 && n <= 955)) then 0 else n 
+  let dti n = if ((n >= 30 && n <= 774) || (n >= 797 && n <= 950)) then 0 else n
+  let al n = if ((n >= 50 && n <= 487) || (n >= 507 && n <= 954)) then 0 else n
+  let asn n = if ((n >= 34 && n <= 693) || (n >= 718 && n <= 956)) then 0 else n
+  let ap n = if ((n >= 42 && n <= 729) || (n >= 751 && n <= 959)) then 0 else n
+  let at n = if ((n >= 28 && n <= 340) || (n >= 349 && n <= 968)) then 0 else n
+  let cl n = if ((n >= 49 && n <= 524) || (n >= 543 && n <= 951)) then 0 else n
+  let du n = if ((n >= 40 && n <= 372) || (n >= 397 && n <= 951)) then 0 else n
+  let pr n = if ((n >= 48 && n <= 922) || (n >= 939 && n <= 951)) then 0 else n
+  let ro n = if ((n >= 33 && n <= 642) || (n >= 666 && n <= 960)) then 0 else n
+  let rw n = if ((n >= 39 && n <= 238) || (n >= 255 && n <= 973)) then 0 else n
+  let st n = if ((n >= 48 && n <= 148) || (n >= 161 && n <= 973)) then 0 else n
+  let tr n = if ((n >= 50 && n <= 604) || (n >= 630 && n <= 971)) then 0 else n
+  let ty n = if ((n >= 29 && n <= 299) || (n >= 316 && n <= 952)) then 0 else n
+  let wg n = if ((n >= 45 && n <= 898) || (n >= 921 && n <= 966)) then 0 else n
+  let zn n = if ((n >= 34 && n <= 188) || (n >= 212 && n <= 959)) then 0 else n
+
+  let all n = if ((n >= 29 && n <= 922) || (n >= 93 && n <= 968)) then 0 else n
   
+  let preveri array = 
+    if Array.length array = 20 
+      then [| all array.(0);
+     all array.(1); 
+     all array.(2); 
+     all array.(3); 
+     all array.(4);  
+     all array.(5); 
+     all array.(6); 
+     all array.(7); 
+     all array.(8); 
+     all array.(9); 
+     all array.(10); 
+     all array.(11);
+     all array.(12);
+     all array.(13);
+     all array.(14);
+     all array.(15);
+     all array.(16);
+     all array.(17);
+     all array.(18);
+     all array.(19) |]
+    else [| 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0|]
 
-let rec next array = 
-  let last = (Array.length array - 1) in
-  let zadnji = array.(last) in
-  let anti_rep = Array.sub array 0 last in
-  if last = 2021 then array
-    else
-      if vsebuje_a  (anti_rep) zadnji
-        then next (Array.append array [|last  - (find_in_array anti_rep zadnji (last - 1))|])
-        else next  (Array.append array [|0|])
+  let preveri_za_vse array = Array.map preveri array
 
-let t15 = [|0; 3; 6|]
-let tt15 = [|1;2;3;4;5;3;2;3;4;5|]
+  let rec vsota sez = 
+    match sez with
+    | [] -> 0
+    | x::xs -> x + vsota xs 
 
-let no_2020 array = (next array).(2019)
-let no_30000000 array = (next array).(30000000 - 1)
+  let vsota_a array = vsota (Array.to_list array)
+  
+  let preveri_a16 = Array.map preveri a16
+  let sum_a16 = Array.map vsota_a preveri_a16
+  let sum_sum_a16 = vsota_a sum_a16 
 
-let odgovor_15_1 = string_of_int (no_2020 a15)
-
+  let odgovor_16_1 = string_of_int sum_sum_a16
 (*--------------------------------------------------- Generator ------------------------------------------------------------*)
   
   let _ = 
       izpisi_datoteko datoteka_9_1_out odgovor_9_1_str;
       izpisi_datoteko datoteka_10_1_out odgovor_10_1_str;
       izpisi_datoteko datoteka_15_1_out odgovor_15_1;
+      izpisi_datoteko datoteka_16_1_out odgovor_16_1;
       
